@@ -10,7 +10,7 @@ class dbconfig:
     cloud_port = 3306
     cloud_db = "bacula"
     cloud_user = "vhost_bak"
-    cloud_pwd = "674V9r)v5F+7Ad6G"
+    cloud_pwd = "*****"
     cloud_charset = "utf8"
 
 
@@ -43,10 +43,10 @@ class Config:
     MAIL_SERVER = 'smtp.exmail.qq.com'
     MAIL_PORT = 25
     MAIL_USE_TLS = True
-    MAIL_USERNAME = 'liuyu@gainet.cn'
-    MAIL_PASSWORD = 'yrMc2dhCwG4qwxbb'
+    MAIL_USERNAME = 'your mail name'
+    MAIL_PASSWORD = ''
     FLASKY_MAIL_SUBJECT_PREFIX = '[vhost]'
-    FLASKY_MAIL_SENDER = 'vhost <liuyu@gainet.cn>'
+    FLASKY_MAIL_SENDER = 'vhost <your mail name>'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     FLASKY_POSTS_PER_PAGE = 20
     FLASKY_FOLLOWERS_PER_PAGE = 50

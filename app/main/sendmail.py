@@ -5,9 +5,7 @@
 
 '''
 smtp.exmail.qq.com
-ssl 465
-liuyu@gainet.cn
-yrMc2dhCwG4qwxbb
+***
 '''
 import smtplib
 from config import SendmailUser,Config

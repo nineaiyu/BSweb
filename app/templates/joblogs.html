@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}备份{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}! 欢迎来到备份系统</h1>
+</div>
+
+<div class="container">
+    <div class="panel panel-default">
+                <div class="panel-heading"> <h4 class="panel-title">Job details</h4> </div>
+                <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            <dt>任务所在服务器ip</dt> <dd><a href="{{ url_for('main.getjobdetails',hostip=hostip)  }}">{{ hostip }}</a></dd>
+                            {% if data %}
+                            <dt>备份服务器名称</dt> <dd><a href="{{ url_for('main.getjobreport',hostip=hostip,jobname=clientip,jobid='now')  }}">{{ clientip }}</a></dd>
+                                <dt>此次备份任务ID</dt> <dd>{{ data[0]["field"][1]['#text'] }}</dd>
+                                {% endif %}
+                        </dl>
+
+
+                    <a href="{{ url_for('main.runbaculajob',hostip=hostip,clientip=clientip)  }} " >
+                    <span class="label label-primary" >重新运行该备份任务</span>
+                    </a>
+                    <HR style="border:1px " width="80%" color=#987cb9 SIZE=1>
+{#                    <a href="{{ url_for('main.runclientrestores',hostip=hostip,clientip=clientip)  }} " >#}
+{#                    <span class="label label-primary" >还原所有最新数据到客户端上</span>#}
+{#                    </a>#}
+                    <HR style="border:1px " width="80%" color=#987cb9 SIZE=1>
+                    <div class="post-footer">
+
+                        警告！！！任务一旦删除，不可恢复，将会清空该任务的所有数据，请谨慎操作
+                        <a href="{{ url_for('main.deletebajobs',hostip=hostip,clientip=clientip,id=name)  }} " >
+                    <span class="label label-primary" >若该任务已经失效，点击删除任务</span>
+                    </a>
+                </div>
+                </div>
+        </div>
+{% if data %}
+     <table class="table table-hover table-striped table-condensed table-bordered">
+                <tr>
+                        <th class="text-center">Time</th>
+                        <th class="text-center">Event</th>
+                </tr>
+         {% endif %}
+                {% for i in data %}
+                {% if data %}
+            <tr class="{$log.class}">
+                        <td class="text-center"> {{  i["field"][2]['#text'] }}</td>
+                        <td class="text-left"> {{ i["field"][3]['#text'] |safe}}</td>
+            </tr>
+        {% else %}
+        <tr>
+                        <td colspan="2" class="text-center">{t}No log(s) for this job{/t}</td>
+        </tr>
+               {% endif %}
+            {% endfor %}
+        </table>
+</div>
+
+{% endblock %}
+

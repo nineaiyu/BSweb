@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}备份{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}! 欢迎来到备份系统</h1>
+</div>
+
+
+{% for data in body %}
+<ul class="posts">
+<li class="post">
+{% if data %}
+        <div class="post-content">
+            {% if data['jobstate'] == "allok" %}
+            <div class="post-date"><a style="color: green"> 所有任务都已经完成</a></div>
+            {% elif data['countjobs']|length == data['newjobs']|length + data['successjobs']|length %}
+             <div class="post-date"><a style="color: green"> 所有任务都已经完成,但是有新增的任务还未启动！！！</a></div>
+            {% else %}
+            <div class="post-date"><a style="color: red"> 任务还未完成！！！</a></div>
+            {% endif %}
+            <div class="post-bacula"><a href="{{ url_for('main.getjobdetails',hostip=data['hostip'])  }}">任务服务器：{{ data['hostip'] }}</a></div>
+            <div class="post-body">
+                {% if data['jobstate'] == "allok" %}
+                任务状态：所有任务都已经完成 <br/>
+                {% elif data['countjobs']|length == data['newjobs']|length + data['successjobs']|length %}
+                任务状态：所有任务都已经完成,但是有新增的任务 <br/>
+                {% else %}
+                任务状态：任务还未完成 <br/>
+                 {% endif %}
+                总共任务：{{ data['countjobs']|length }} <br/>
+                新增任务：{{ data['newjobs']|length }} <br/>
+                <span style="color: green">成功任务：{{ data['successjobs']|length }}</span>  <br/>
+                <span style="color: #23ff72">运行任务：{{ data['runningjobs']|length }}</span>  <br/>
+                <span style="color: #ffb55e" >等待任务：{{ data['waitingjobs']|length }}</span> <br/>
+                <span style="color: red">失败任务：{{ data['failedjobs'] |length}}</span>  <br/>
+                <HR style="border:1px " width="80%" color=#987cb9 SIZE=1>
+                失败任务-完成：{{ data['failjobsuccess']|length }} <br/>
+                失败任务-运行：{{ data['failjobrunning'] |length}} <br/>
+                失败任务-等待：{{ data['failjobwaiting']|length }} <br/>
+                失败任务-启动：{{ data['failjobtorun']|length }} <br/>
+                <HR style="border:1px" width="80%" color=#987cb9 SIZE=1>
+                失败任务当天超过3次：{{ data['failjoblimit']|length }} <br/>
+
+                任务运行超过时间限制：{{ data['jobslimitime'] |length}} <br/>
+
+
+            </div>
+            <div class="post-footer">
+                <a href="{{ url_for('main.getjobdetails',hostip=data['hostip'])  }}">
+                    <span class="label label-primary">点击查看备份详情</span>
+                </a>
+            </div>
+        </div>
+    </li>
+
+</ul>
+{% endif %}
+{% endfor %}
+ {% if current_user.is_authenticated %}
+<div class="panel panel-default">
+			<div class="panel-heading"><h3 class="panel-title">如有失败任务，点击运行全部失败备份</h3></div>
+			<div class="panel-body">
+				<dl class="dl-horizontal">
+
+                 <div class="post-footer">
+                <a href="{{ url_for('main.runfailbacula') }}">
+                    <span class="label label-primary">点击运行所有失败任务</span>
+                </a>
+                 </div>
+				</dl>
+			</div>
+		</div>
+{% endif %}
+{% endblock %}
+

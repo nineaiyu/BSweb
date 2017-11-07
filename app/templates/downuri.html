@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}备份{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}! 欢迎来到备份系统</h1>
+</div>
+
+
+<div class="container">
+		<h4>任务详情</h4>
+
+		<table class="table table-condensed table-hover table-striped table-bordered text-center">
+		<tr>
+			<th class="text-center">站点名字</th>
+			<th class="text-center">还原日期</th>
+			<th class="text-center">任务状态</th>
+			<th class="text-center">客户端IP</th>
+			<th class="text-center">服务器IP</th>
+			<th class="text-center">备注信息</th>
+			<th class="text-center">执行日期</th>
+            <th class="text-center">数据大小</th>
+			<th class="text-center">下载链接</th>
+			<th class="text-center">删除数据</th>
+		</tr>
+		 {% for i in data %}
+		{% if i%}
+		<tr>
+
+			<td>{{ i['sitename'] }}</td>
+			<td>{{ i['filetime'] }}</td>
+			<td>{{ i['ispost'] }}</td>
+			<td>{{ i['clientip'] }}</td>
+			<td>{{ i['hostip'] }}</td>
+			<td>{{ i['description'] }}</td>
+			<td>{{ i['addtime'] }}</td>
+
+
+            {% if i['datasize']|int > 1024*1024*1024*1024 %}
+			<td>{{ ((i['datasize']|int)/1024/1024/1024/1024) |round(precision=2,method='common')}} TB</td>
+			{%elif i['datasize']|int > 1024*1024*1024 %}
+			<td>{{ ((i['datasize']|int)/1024/1024/1024) |round(precision=2,method='common')}} GB</td>
+			{%elif i['datasize']|int > 1024*1024 %}
+			<td>{{ ((i['datasize']|int)/1024/1024)|round(precision=2,method='common')}} MB</td>
+			{%elif i['datasize']|int > 1024 %}
+			<td>{{ ((i['datasize']|int)/1024) |round(precision=2,method='common')}} KB</td>
+			{%else%}
+			<td>{{ i['datasize'] }}</td>
+			{%endif%}
+
+
+
+			{% if i['ispost'] != "ok" %}
+			<td><a href="{{ url_for('main.getdownuri',hostip=i['hostip'],sitename=i['sitename'] ,ispost=i['ispost'],clientip=i['clientip'],addtime=i['addtime'],checkdata=i['checkdata'])  }}">获取链接</a></td>
+			{% else  %}
+			<td><a href="{{i['uri'] }}">点击下载</a></td>
+			{% endif %}
+			<td><a href="{{ url_for('main.delgetdownuri',hostip=i['hostip'],sitename=i['sitename'] ,ispost=i['ispost'],clientip=i['clientip'],addtime=i['addtime'])  }}" title='删除记录和下载的数据'>删除</a></td>
+
+			<!--<td style="color: aqua">运行中</td>-->
+
+
+			<!--<td>-->
+			<!--<a href="{{ i['uri'] }}" title="点击下载">-->
+                            <!--<span class="glyphicon glyphicon-search"></span>-->
+            <!--</a>-->
+			<!--</td>-->
+		</tr>
+{%endif%}
+            {% endfor %}
+	</table>
+
+<div class="panel panel-default">
+			<div class="panel-heading"><h3 class="panel-title"></h3></div>
+			<div class="panel-body">
+				<dl class="dl-horizontal">
+
+				</dl>
+			</div>
+		</div> <!-- end div class="panel ..." -->
+
+	</div> <!-- class="container-fluid" -->
+
+
+{% endblock %}

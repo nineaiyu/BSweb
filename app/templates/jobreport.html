@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}备份{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}! 欢迎来到备份系统</h1>
+</div>
+
+
+<div class="container">
+		<div class="panel panel-default">
+			<div class="panel-heading"><h3 class="panel-title">{{ otherags["clientip"] }} 备份任务详情</h3></div>
+			<div class="panel-body">
+				<dl class="dl-horizontal">
+					<dt>任务所在服务器ip</dt> <dd><a href="{{ url_for('main.getjobdetails',hostip=otherags['hostip'])  }}">{{ otherags["hostip"] }}</a></dd>
+					<dt>备份服务器名称</dt> <dd><a href="{{ url_for('main.getjobreport',hostip=otherags['hostip'],jobname=otherags['clientip'],jobid=otherags['jobid'])  }}">{{ otherags["clientip"] }}</a></dd>
+					{% if otherags['jobid'] == 'now' %}
+					{%if data%}
+					<dt>备份的时间</dt> <dd>Form {{otherags["lastweekdat"]}} to {{otherags["today"]}}</dd>
+					<dt>总共传输的数据量</dt>
+					{% if data | map(attribute='JobBytes') | sum > 1024*1024*1024*1024 %}
+					<dd>{{ ((data | map(attribute='JobBytes') | sum)/1024/1024/1024/1024) |round(precision=2,method='common')}} TB</dd>
+					{%elif data | map(attribute='JobBytes') | sum > 1024*1024*1024 %}
+					<dd>{{ ((data | map(attribute='JobBytes') | sum)/1024/1024/1024) |round(precision=2,method='common')}} GB</dd>
+					{%elif data | map(attribute='JobBytes') | sum > 1024*1024 %}
+					<dd>{{ ((data | map(attribute='JobBytes') | sum)/1024/1024)|round(precision=2,method='common')}} MB</dd>
+					{%elif data | map(attribute='JobBytes') | sum > 1024 %}
+					<dd>{{ ((data | map(attribute='JobBytes') | sum)/1024) |round(precision=2,method='common')}} KB</dd>
+					{%else%}
+					<dd>{{ data | map(attribute='JobBytes') | sum }}B</dd>
+					{%endif%}
+
+
+					<dt>总共传输的文件量</dt> <dd>{{ data | map(attribute='JobFiles') | sum }}</dd>
+
+                    <HR style="border:1px " width="80%" color=#987cb9 SIZE=1>
+                    <HR style="border:1px " width="80%" color=#987cb9 SIZE=1>
+					{%endif%}
+
+                    <HR style="border:1px " width="80%" color=#987cb9 SIZE=1>
+
+
+
+                    <a href="{{ url_for('main.runbaculajob',hostip=otherags['hostip'],clientip=otherags['clientip'])  }} " >
+                    <span class="label label-primary" >重新运行该备份任务</span>
+                    </a>
+					{%if data%}
+                    <HR style="border:1px " width="80%" color=#987cb9 SIZE=1>
+{#                    <a href="{{ url_for('main.runclientrestores',hostip=otherags['hostip'],clientip=otherags['clientip'])  }} " >#}
+{#                    <span class="label label-primary" >还原所有最新数据到客户端上</span>#}
+{#                    </a>#}
+					{%endif%}
+                    <HR style="border:1px " width="80%" color=#987cb9 SIZE=1>
+					{%else%}
+					<a href="{{ url_for('main.runcheckjobs',hostip=otherags['hostip'])  }} " >
+                    <span class="label label-primary" >还没有重启备份服务，无法进行备份，请重启备份</span>
+                    </a>
+					{% endif %}
+                    <div class="post-footer">
+                        警告！！！任务一旦删除，不可恢复，将会清空该任务的所有数据，请谨慎操作
+                        <a href="{{ url_for('main.deletebajobs',hostip=otherags['hostip'],clientip=otherags['clientip'])  }} " >
+                    <span class="label label-primary" >若该任务已经失效，点击删除任务</span>
+                    </a>
+                	</div>
+
+				</dl>
+			</div>
+		</div> <!-- end div class="panel ..." -->
+{% if jobid != "now" %}
+		<!-- Last jobs list -->
+		<h4>任务详情</h4>
+
+		<table class="table table-condensed table-hover table-striped table-bordered text-center">
+		<tr>
+			<th class="text-center">任务ID</th>
+			<th class="text-center">备份类型</th>
+			<th class="text-center">任务状态</th>
+			<th class="text-center">文件数量</th>
+			<th class="text-center">总共大小</th>
+			<th class="text-center">传输大小</th>
+			<th class="text-center">开始时间</th>
+			<th class="text-center">结束时间</th>
+			<th class="text-center">备份时间</th>
+			<th class="text-center">备份速度</th>
+            <th class="text-center">压缩比率</th>
+			<th class="text-center">查看日志</th>
+		</tr>
+
+		 {% for i in data %}
+		{% if i%}
+		<tr>
+
+			<td>{{ i['JobId'] }}</td>
+			{% if i['Type'] == "B" %}
+				{% if i['Level']== "F" %}
+				<td>全量备份</td>
+				{% elif i['Level']== "D" %}
+				<td>差异备份</td>
+				{%endif%}
+			{% elif i['Type'] == "R" %}
+				<td>还原</td>
+			{%endif%}
+			{% if i['JobStatus']== "T" %}
+			<td style="color: green">已完成</td>
+			{% elif i['JobStatus']== "R" %}
+			<td style="color: aqua">运行中</td>
+			{% elif i['JobStatus'] in ('F','S','M','m','s','j','c','d','t','p','C') %}
+			<td style="color: #b02cff">等待中</td>
+			{% elif i['JobStatus']== "f" %}
+			<td style="color: red">失败了</td>
+			{%else%}
+			<td style="color: rgba(94,99,84,0.8)">不知道</td>
+			{%endif%}
+
+			<td>{{ i['JobFiles'] }}</td>
+			{% if i['JobBytes']|int > 1024*1024*1024*1024 %}
+			<td>{{ ((i['JobBytes']|int)/1024/1024/1024/1024) |round(precision=2,method='common')}} TB</td>
+			{%elif i['JobBytes']|int > 1024*1024*1024 %}
+			<td>{{ ((i['JobBytes']|int)/1024/1024/1024) |round(precision=2,method='common')}} GB</td>
+			{%elif i['JobBytes']|int > 1024*1024 %}
+			<td>{{ ((i['JobBytes']|int)/1024/1024)|round(precision=2,method='common')}} MB</td>
+			{%elif i['JobBytes']|int > 1024 %}
+			<td>{{ ((i['JobBytes']|int)/1024) |round(precision=2,method='common')}} KB</td>
+			{%else%}
+			<td>{{ i['JobBytes'] }}B</td>
+			{%endif%}
+
+			{% if i['ReadBytes']|int > 1024*1024*1024*1024 %}
+			<td>{{ ((i['ReadBytes']|int)/1024/1024/1024/1024) |round(precision=2,method='common')}} TB</td>
+			{%elif i['ReadBytes']|int > 1024*1024*1024 %}
+			<td>{{ ((i['ReadBytes']|int)/1024/1024/1024) |round(precision=2,method='common')}} GB</td>
+			{%elif i['ReadBytes']|int > 1024*1024 %}
+			<td>{{ ((i['ReadBytes']|int)/1024/1024)|round(precision=2,method='common')}} MB</td>
+			{%elif i['ReadBytes']|int > 1024 %}
+			<td>{{ ((i['ReadBytes']|int)/1024) |round(precision=2,method='common')}} KB</td>
+			{%else%}
+			<td>{{ i['ReadBytes'] }}B</td>
+			{%endif%}
+
+
+
+			<td>{{ i['StartTime'] }}</td>
+			<td>{{ i['EndTime'] }}</td>
+
+			<td>{{ i['elapsed'] }}</td>
+			{% if i['jobseconds'] > 0 %}
+			{% if (i['JobBytes']|int)/(i['jobseconds']|int) > 1024*1024 %}
+			<td>{{ ((i['JobBytes']|int)/(i['jobseconds']|int)/1024/1024)|round(precision=2,method='common')}} MB/s</td>
+			{% elif (i['JobBytes']|int)/(i['jobseconds']|int) > 1024 %}
+			<td>{{ ((i['JobBytes']|int)/(i['jobseconds']|int)/1024)|round(precision=2,method='common')}} KB/s</td>
+			{%else%}
+			<td>{{ ((i['JobBytes']|int)/(i['jobseconds']|int)) |round(precision=2,method='common')}} B/s</td>
+			{%endif%}
+			{%else%}
+			<td>N/A</td>
+			{% endif %}
+
+			{% if i['JobBytes'] >0 %}
+			<td>{{ 1-((i['JobBytes']|int)/(i['ReadBytes']|int)) |round(precision=2,method='common')}}</td>
+			{% else %}
+			<td>N/A</td>
+			{% endif %}
+			<td>
+			<a href="{{ url_for('main.getjoblogs',hostip=otherags['hostip'],jobname=otherags['clientip'],jobid=i['JobId'])  }}" title="任务详情">
+                            <span class="glyphicon glyphicon-search"></span>
+            </a>
+			</td>
+		</tr>
+{%endif%}
+            {% endfor %}
+	</table>
+{% endif %}
+<div class="panel panel-default">
+			<div class="panel-heading"><h3 class="panel-title"></h3></div>
+			<div class="panel-body">
+				<dl class="dl-horizontal">
+
+				</dl>
+			</div>
+		</div> <!-- end div class="panel ..." -->
+
+	</div> <!-- class="container-fluid" -->
+
+
+{% endblock %}

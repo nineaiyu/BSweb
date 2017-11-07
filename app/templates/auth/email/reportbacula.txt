@@ -1,0 +1,11 @@
+Dear {{ user }},
+
+虚拟主机备份报告
+
+{% for info in infos %}
+
+{{ info }}
+
+{%endfor%}
+
+Note: replies to this email address are not monitored.

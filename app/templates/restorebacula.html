@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}备份{% endblock %}
+
+{% block page_content %}
+
+<div class="post-tabs">
+    <ul class="nav nav-tabs">
+        <div class="page-header">
+        <h1>备份还原</h1>
+            {% if posts[0].split('#')[0] == "888" %}
+            <h3>备份服务器ip：{{posts[0].split('#')[1]}}</h3>
+            {%else%}
+            {% if posts[0] != "999" %}
+            <h3>备份服务器ip：{{posts[0].split('#')[5]}}</h3>
+            {%endif%}
+            {%endif%}
+        </div>
+        <div class="col-md-4">
+        {{ wtf.quick_form(form) }}
+        </div>
+
+    </ul>
+
+     {% include 'bacula_post.html' %}
+</div>
+
+
+
+
+{% if pagination %}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}

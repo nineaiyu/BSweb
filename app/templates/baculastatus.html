@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}备份{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}! 欢迎来到备份系统</h1>
+</div>
+                    {% if data %}
+<div class="panel panel-default">
+			<div class="panel-heading"><h3 class="panel-title"></h3></div>
+			<div class="panel-body">
+				<dl class="dl-horizontal">
+                {% if data['code'] == 2 %}
+                    <dt>任务状态</dt><dd>没有发现要还原的任务</dd>
+                    <dt>任务详情</dt><dd>{{data['infos'] }}</dd>
+                    {% elif data['code'] == 0 %}
+                    <dt>任务状态</dt><dd>正在还原</dd>
+                    <dt>任务名称</dt><dd><a href="{{ url_for('main.getjobreport',hostip=data['infos']['hostip'],jobname=data['jobname'],jobid='now')  }}">{{data['jobname'] }}</a></dd>
+                    <dt>是否加入还原列表</dt><dd> {{data['infos']['status'] }}</dd>
+                     {% elif data['code'] == 1 %}
+                    <dt>任务状态</dt><dd>已经加入任务队列</dd>
+{#                    <dt>任务名称</dt><dd>{{data['infos']['jobname'] }}</dd>#}
+                    {% if body %}
+                    <dt>站点业务标识</dt><dd>{{ body['sitename']}}</dd>
+                    <dt>站点所在虚机</dt><dd>{{ body['clientip']}}</dd>
+                    <dt>备份所在宿主</dt><dd>{{ body['hostip'] }}</dd>
+{#                    <dt>是否加入还原列表</dt><dd>{{ body['infos']['status'] }}</dd>#}
+
+                    <div class="post-footer">
+{#                    <!--<a href="{{ url_for('main.getbaculaquee',data=body['jobname']) }}">-->#}
+                    <a href="{{ url_for('main.getbaculaquee') }}">
+                    <span class="label label-primary">点击查看所有正在还原的任务</span>
+                </a>
+                 </div>
+                 {% endif %}
+                  {%endif%}
+
+				</dl>
+			</div>
+		</div>
+  {%endif%}
+
+<div class="post-tabs">
+{% if posts %}
+    {% for post in posts %}
+        <ul class="nav nav-tabs">
+            <li class="navbar-brand">备份服务器ip:  {{ post['hostip']}} </li>
+        </ul>
+         <ul class="nav nav-tabs">
+            <li class="navbar-brand">正在还原的任务:</li>
+
+                {% if post['runjob'] == '0' %}
+                <li class="navbar-brand">暂无还原的任务</li>
+                {%else%}
+                {% for i in post['runjob'] %}
+                <li class="navbar-brand">{{i["Name"]}}</li>
+                {%endfor%}
+                {%endif%}
+             </ul>
+    {% endfor %}
+{%endif%}
+</div>
+
+{% if pagination %}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}

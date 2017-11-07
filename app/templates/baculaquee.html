@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}备份{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}! 欢迎来到备份系统</h1>
+</div>
+
+
+<div class="container">
+		<h3>任务队列详情</h3>
+        <h4 class="text-center">以下任务为将要还原的任务，但是 任务所在服务器正在运行其他任务，因此需要在此进行排队</h4>
+		<table class="table table-condensed table-hover table-striped table-bordered text-center">
+		<tr>
+			<th class="text-center">站点名字</th>
+			<th class="text-center">还原日期</th>
+			<th class="text-center">客户端IP</th>
+			<th class="text-center">服务器IP</th>
+			<th class="text-center">执行日期</th>
+            <th class="text-center">预计此备份任务完成时间</th>
+            <th class="text-center">删除数据</th>
+		</tr>
+		 {% for i in data %}
+		{% if i%}
+		<tr>
+
+			<td>{{ i['sitename'] }}</td>
+			<td>{{ i['startime'] }}</td>
+			<td>{{ i['clientip'] }}</td>
+			<td>{{ i['hostip'] }}</td>
+			<td>{{ i['addtime'] }}</td>
+            <td>{{ i['endtime']}}</td>
+            <td><a href="{{ url_for('main.delbaculajob',hostip=i['hostip'],sitename=i['sitename'] ,clientip=i['clientip'],addtime=i['addtime'])  }}" title='删除此次还原任务'>删除任务</a></td>
+
+
+
+		</tr>
+{%endif%}
+            {% endfor %}
+	</table>
+
+<div class="panel panel-default">
+			<div class="panel-heading"><h3 class="panel-title"></h3></div>
+			<div class="panel-body">
+				<dl class="dl-horizontal">
+
+				</dl>
+			</div>
+		</div> <!-- end div class="panel ..." -->
+
+	</div> <!-- class="container-fluid" -->
+
+
+{% endblock %}

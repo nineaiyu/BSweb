@@ -1,0 +1,6 @@
+<p>Dear {{ user }},</p>
+<p><b>虚拟主机备份报告</b>!</p>
+{% for info in infos %}
+<li>{{ info }}</li>
+{%endfor%}
+<p><small>Note: replies to this email address are not monitored.</small></p>

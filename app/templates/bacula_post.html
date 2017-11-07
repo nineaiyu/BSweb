@@ -1,0 +1,31 @@
+<ul class="posts">
+    {% for post in posts %}
+    <li class="post">
+        <div class="post-content">
+            <div class="post-body">
+                {% if post %}
+                <form method="post">
+                     {% if posts[0].split('#')[0] == '888' %}
+                     <h3>备份客户端存在，但是没有发现该站点任何备份，请检查站点名字是否有误</h3>
+                     {%else%}
+
+                     {% if posts[0].split('#')[0] != '999' %}
+                    <a  class="navbar-brand"  href="{{ url_for('main.runrestorebacula',id=post.split('#')[0],hostip=post.split('#')[4],sitename=post.split('#')[3])  }}">备份时间：{{ post.split('#')[1] }} 结束时间： {{ post.split('#')[2] }}</a>
+                    {%else%}
+                    {% if posts[0].split('#')[0] == '999' %}
+                    <h3>没有发现任何备份客户端，请检查备份客户端是否已经添加到备份服务器上面</h3>
+                    {% elif  posts == 'error' %}
+                    <h3>错误，发现相同备份，无法进行比对</h3>
+            {%endif%}
+                    {%endif%}
+                </form>
+                {% endif %}
+                    {% else %}
+                    {{ post }}
+                {% endif %}
+
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
